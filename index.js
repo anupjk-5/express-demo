@@ -5,6 +5,17 @@ const app = express();
 // middlewares
 app.use(express.json({ extended: true }));
 
+// function to check authorization based on token
+const checkToken = (req, res, next) => {
+    const { token } = req.query;
+
+    if (token === 'abcd1234') {
+        next();
+    } else {
+        res.status(400).json({ message: 'Unauthorized' });
+    }
+};
+
 // routes
 app.get('/books', async (req, res) => {
     const query = 'SELECT * FROM books';
@@ -16,7 +27,7 @@ app.get('/books', async (req, res) => {
     }
 });
 
-app.post('/books', async (req, res) => {
+app.post('/books', checkToken, async (req, res) => {
     const { name, author, publishedOn } = req.body;
     const id = getId();
     const newRow = { id, name, author, publishedOn };
@@ -30,7 +41,7 @@ app.post('/books', async (req, res) => {
     }
 });
 
-app.patch('/books/:id', async (req, res) => {
+app.patch('/books/:id', checkToken, async (req, res) => {
     const { id } = req.params;
     let keyValuePairs = '';
     const params = [];
@@ -58,7 +69,7 @@ app.patch('/books/:id', async (req, res) => {
     }
 });
 
-app.delete('/books/:id', async (req, res) => {
+app.delete('/books/:id', checkToken, async (req, res) => {
     const { id } = req.params;
 
     const query = "DELETE FROM books WHERE id=?";
