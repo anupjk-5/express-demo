@@ -37,7 +37,7 @@ app.post('/books', checkToken, async (req, res) => {
         await executeQuery(query, [id, name, author, publishedOn]);
         res.json(newRow);
     } catch (error) {
-        res.json({ error });
+        res.json({ message: 'Catched an error' });
     }
 });
 
@@ -79,6 +79,19 @@ app.delete('/books/:id', checkToken, async (req, res) => {
     } catch (error) {
         res.json({ error });
     }
+});
+
+
+app.all('*', (req, res, next) => {
+    next(new Error(`There is no ${req.originalUrl} route with ${req.method} method`));
+});
+
+app.use((err, req, res, next) => {
+    const { statusCode = 400, message } = err;
+    res.status(statusCode).json({
+        message: message || 'Something went wrong',
+        statusCode,
+    });
 });
 
 // server starting
