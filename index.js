@@ -4,7 +4,7 @@ const checkToken = require('./middlewares/token');
 const app = express();
 
 // middlewares
-app.use(express.json({ extended: true }));
+app.use(express.json());
 
 // routes
 app.get('/books', async (req, res) => {
@@ -72,6 +72,30 @@ app.delete('/books/:id', async (req, res) => {
         res.json({ error });
     }
 });
+
+// middleware vs handlers
+// app.get('/books/:id', async (req, res, next) => {
+//     const { id } = req.params;
+
+//     const queryStr = 'SELECT * FROM books WHERE id=?';
+//     try {
+//         const [ book ] = await executeQuery(queryStr, [id]);
+ 
+//         if (!book) return res.json({message: 'No book is found'});
+
+//         if (parseInt(book.published_on, 10) > 2000) return next('route');
+
+//         next();
+//     } catch (error) {
+//         res.send('Error');
+//     }
+// }, (req, res, next) => {
+//     res.json({ message: 'This is not a modern literature' });
+// });
+  
+// app.get('/books/:id', function (req, res, next) {
+//     res.json({ message: 'This is a modern literature' })
+// });
 
 // server starting
 app.listen(4000, () => {
