@@ -1,20 +1,10 @@
 const express = require("express");
 const { executeQuery, getId } = require("./helpers/utils");
+const checkToken = require('./middlewares/checkToken');
 const app = express();
 
 // middlewares
 app.use(express.json({ extended: true }));
-
-// function to check authorization based on token
-const checkToken = (req, res, next) => {
-    const { token } = req.query;
-
-    if (token === 'abcd1234') {
-        next();
-    } else {
-        res.status(400).json({ message: 'Unauthorized' });
-    }
-};
 
 // routes
 app.get('/books', async (req, res) => {
@@ -27,7 +17,9 @@ app.get('/books', async (req, res) => {
     }
 });
 
-app.post('/books', checkToken, async (req, res) => {
+app.use(checkToken);
+
+app.post('/books', async (req, res, next) => {
     const { name, author, publishedOn } = req.body;
     const id = getId();
     const newRow = { id, name, author, publishedOn };
@@ -37,11 +29,11 @@ app.post('/books', checkToken, async (req, res) => {
         await executeQuery(query, [id, name, author, publishedOn]);
         res.json(newRow);
     } catch (error) {
-        res.json({ message: 'Catched an error' });
+        next(error);
     }
 });
 
-app.patch('/books/:id', checkToken, async (req, res) => {
+app.patch('/books/:id', async (req, res) => {
     const { id } = req.params;
     let keyValuePairs = '';
     const params = [];
@@ -69,7 +61,7 @@ app.patch('/books/:id', checkToken, async (req, res) => {
     }
 });
 
-app.delete('/books/:id', checkToken, async (req, res) => {
+app.delete('/books/:id', async (req, res) => {
     const { id } = req.params;
 
     const query = "DELETE FROM books WHERE id=?";
