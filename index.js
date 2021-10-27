@@ -78,13 +78,15 @@ app.all('*', (req, res, next) => {
     next(new Error(`There is no ${req.originalUrl} route with ${req.method} method`));
 });
 
-app.use((err, req, res, next) => {
-    const { statusCode = 400, message } = err;
-    res.status(statusCode).json({
-        message: message || 'Something went wrong',
-        statusCode,
-    });
-});
+
+// custom error handler
+// app.use((err, req, res, next) => {
+//     const { statusCode = 400, message } = err;
+//     res.status(statusCode).json({
+//         message: message || 'Something went wrong',
+//         statusCode,
+//     });
+// });
 
 // server starting
 app.listen(4000, () => {
